@@ -13,7 +13,9 @@ Gem::Specification.new do |s|
   s.license     = "MIT"
   s.required_ruby_version = ">= 3.0"
 
-  s.files = Dir["lib/**/*.rb"]
+  s.bindir      = "exe"
+  s.executables = ["citedhealth"]
+  s.files       = Dir["lib/**/*.rb"] + Dir["exe/*"]
 
   s.add_development_dependency "minitest", "~> 5.0"
   s.add_development_dependency "rake", "~> 13.0"

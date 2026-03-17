@@ -11,10 +11,15 @@ Cited Health is an evidence-based supplement research platform providing curated
 
 > **Explore the research at [citedhealth.com](https://citedhealth.com)** -- [Ingredients](https://citedhealth.com/ingredients/), [Evidence](https://citedhealth.com/api/evidence/), [Research Papers](https://citedhealth.com/papers/)
 
+<p align="center">
+  <img src="demo.gif" alt="citedhealth Ruby CLI demo — search ingredients, evidence grades, and PubMed papers" width="800">
+</p>
+
 ## Table of Contents
 
 - [Install](#install)
 - [Quick Start](#quick-start)
+- [Command-Line Interface](#command-line-interface)
 - [What You Can Do](#what-you-can-do)
   - [Search Supplement Ingredients](#search-supplement-ingredients)
   - [Check Evidence Grades](#check-evidence-grades)
@@ -68,6 +73,53 @@ puts evidence.summary      # => "Moderate evidence supports..."
 papers = client.search_papers(query: "melatonin sleep", year: 2024)
 puts papers.first.title    # Paper title
 puts papers.first.journal  # Journal name
+```
+
+## Command-Line Interface
+
+Install the gem and use the `citedhealth` command directly from your terminal:
+
+```bash
+gem install citedhealth
+```
+
+### Search ingredients
+
+```bash
+citedhealth ingredients biotin
+citedhealth ingredients --category Vitamins
+```
+
+### Get ingredient details
+
+```bash
+citedhealth ingredient vitamin-d
+```
+
+### Check evidence grades
+
+```bash
+citedhealth evidence biotin hair-loss
+```
+
+### Search research papers
+
+```bash
+citedhealth papers melatonin --year 2024
+```
+
+### Get paper by PubMed ID
+
+```bash
+citedhealth paper 12345678
+```
+
+### Output formats
+
+By default, output is pretty-printed JSON. Use `--json` for compact JSON (useful for piping):
+
+```bash
+citedhealth ingredients biotin --json | jq '.[] | .name'
 ```
 
 ## What You Can Do
