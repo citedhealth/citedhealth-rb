@@ -63,7 +63,7 @@ puts vitamin_d.recommended_dosage  # => {"general" => "1000-4000 IU"}
 # Look up evidence linking an ingredient to a condition
 evidence = client.get_evidence(
   ingredient_slug: "vitamin-d",
-  condition_slug: "hair-loss"
+  condition_slug: "nutritional-deficiency-hair-loss"
 )
 puts evidence.grade        # => "B"
 puts evidence.grade_label  # => "Good"
@@ -99,7 +99,7 @@ citedhealth ingredient vitamin-d
 ### Check evidence grades
 
 ```bash
-citedhealth evidence biotin hair-loss
+citedhealth evidence biotin nutritional-deficiency-hair-loss
 ```
 
 ### Search research papers
