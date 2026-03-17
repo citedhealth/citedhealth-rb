@@ -15,13 +15,15 @@ Cited Health is an evidence-based supplement research platform providing curated
 
 - [Install](#install)
 - [Quick Start](#quick-start)
-- [API Methods](#api-methods)
-  - [Ingredients](#ingredients)
-  - [Evidence Links](#evidence-links)
-  - [Research Papers](#research-papers)
+- [What You Can Do](#what-you-can-do)
+  - [Search Supplement Ingredients](#search-supplement-ingredients)
+  - [Check Evidence Grades](#check-evidence-grades)
+  - [Search PubMed Papers](#search-pubmed-papers)
 - [Error Handling](#error-handling)
-- [Types](#types)
-- [Learn More](#learn-more)
+- [Evidence Grades](#evidence-grades)
+- [API Reference](#api-reference)
+- [Learn More About Evidence-Based Supplements](#learn-more-about-evidence-based-supplements)
+- [Also Available](#also-available)
 - [License](#license)
 
 ## Install
@@ -68,60 +70,90 @@ puts papers.first.title    # Paper title
 puts papers.first.journal  # Journal name
 ```
 
-## API Methods
+## What You Can Do
 
-### Ingredients
+### Search Supplement Ingredients
+
+Find ingredients by name or filter by category. Each ingredient includes mechanism of action, recommended dosage by population, available forms, and evidence linkage.
+
+| Category | Examples |
+|----------|---------|
+| vitamins | Biotin, Vitamin D, Vitamin C |
+| minerals | Magnesium, Zinc, Iron |
+| amino-acids | L-Theanine, Tryptophan, Glycine |
+| herbs | Ashwagandha, Valerian, Melatonin |
 
 ```ruby
-# Search ingredients by keyword and/or category
+client = CitedHealth::Client.new
+
+# Search by keyword — returns matching ingredients
 results = client.search_ingredients(query: "vitamin", category: "Vitamins")
 results.each { |i| puts "#{i.name} (#{i.category})" }
 
-# Get a single ingredient by slug
-ingredient = client.get_ingredient("magnesium")
-puts ingredient.name               # => "Magnesium"
-puts ingredient.forms              # => ["Glycinate", "Citrate", ...]
-puts ingredient.is_featured        # => true
+# Get a specific ingredient with full details
+magnesium = client.get_ingredient("magnesium")
+puts magnesium.mechanism           # "Essential mineral cofactor..."
+puts magnesium.recommended_dosage  # {"general" => "200-400mg"}
+puts magnesium.forms               # ["Glycinate", "Citrate", ...]
 ```
 
-### Evidence Links
+Learn more: [Browse Ingredients](https://citedhealth.com/) · [Evidence Database](https://citedhealth.com/evidence/) · [Developer Docs](https://citedhealth.com/developers/)
+
+### Check Evidence Grades
+
+Every ingredient-condition pair has an evidence grade calculated from peer-reviewed PubMed studies. Grades reflect the strength, consistency, and quantity of evidence.
 
 ```ruby
-# Find evidence for a specific ingredient-condition pair
+client = CitedHealth::Client.new
+
+# Get evidence for a specific ingredient-condition pair
 evidence = client.get_evidence(
   ingredient_slug: "melatonin",
   condition_slug: "insomnia"
 )
-if evidence
-  puts "#{evidence.grade_label}: #{evidence.summary}"
-  puts "Studies: #{evidence.total_studies}, Participants: #{evidence.total_participants}"
-end
+puts "Grade #{evidence.grade}: #{evidence.total_studies} studies"
+# Grade A: 15 studies
 
-# Get evidence link by ID
-evidence = client.get_evidence_by_id(42)
-puts evidence.ingredient.name  # => "Vitamin D"
-puts evidence.condition.name   # => "Hair Loss"
+# Evidence includes direction of effect
+puts evidence.direction    # "positive" | "negative" | "neutral" | "mixed"
+puts evidence.summary      # Human-readable summary
+
+# Fetch by ID if you already know it
+ev = client.get_evidence_by_id(42)
+puts "#{ev.ingredient.name} for #{ev.condition.name}"
 ```
 
-### Research Papers
+Learn more: [Evidence Reviews](https://citedhealth.com/evidence/) · [Grading Methodology](https://citedhealth.com/editorial-policy/) · [Hair Health](https://haircited.com) · [Sleep Health](https://sleepcited.com)
+
+### Search PubMed Papers
+
+All 2,881 papers are indexed from PubMed and enriched with citation data from Semantic Scholar. Filter by keyword or publication year.
 
 ```ruby
-# Search papers by keyword
+client = CitedHealth::Client.new
+
+# Search papers by title/abstract keyword
 papers = client.search_papers(query: "collagen skin")
 papers.each do |paper|
-  puts "#{paper.title} (#{paper.journal}, #{paper.publication_year})"
-  puts "  Citations: #{paper.citation_count}, Open access: #{paper.is_open_access}"
+  # Each paper includes PMID, journal, citation count, open access status
+  puts "[PMID #{paper.pmid}] #{paper.title} (#{paper.publication_year})"
+  puts "  #{paper.citation_count} citations — #{paper.pubmed_link}"
 end
 
 # Filter by publication year
 recent = client.search_papers(query: "ashwagandha", year: 2025)
 
-# Get a paper by PubMed ID
+# Fetch a specific paper by PubMed ID
 paper = client.get_paper("12345678")
-puts paper.pubmed_link  # => "https://pubmed.ncbi.nlm.nih.gov/12345678/"
+puts paper.journal     # Journal name
+puts paper.study_type  # "RCT", "Meta-Analysis", etc.
 ```
 
+Learn more: [Browse Papers](https://citedhealth.com/papers/) · [OpenAPI Spec](https://citedhealth.com/api/openapi.json) · [REST API Docs](https://citedhealth.com/developers/)
+
 ## Error Handling
+
+The client raises typed exceptions for common failure cases:
 
 ```ruby
 begin
@@ -141,26 +173,76 @@ end
 | `CitedHealth::RateLimitError` | 429 | Too many requests (check `retry_after`) |
 | `CitedHealth::Error` | Other | General API or network error |
 
-## Types
+## Evidence Grades
+
+CITED Health calculates evidence grades from peer-reviewed PubMed studies using study type, consistency, sample size, and study count:
+
+| Grade | Label | Criteria |
+|-------|-------|----------|
+| A | Strong Evidence | Multiple RCTs/meta-analyses, consistent positive results |
+| B | Good Evidence | At least one RCT, mostly consistent |
+| C | Some Evidence | Small studies, some positive signals |
+| D | Very Early Research | In vitro, case reports, pilot studies |
+| F | Evidence Against | <30% of studies show positive effects |
+
+## API Reference
 
 All API responses are returned as typed Ruby objects with `attr_reader` accessors.
+
+| Method | Description | Returns |
+|--------|-------------|---------|
+| `search_ingredients(query:, category:)` | Search ingredients by name or category | `Array<Ingredient>` |
+| `get_ingredient(slug)` | Get ingredient by slug | `Ingredient` |
+| `get_evidence(ingredient_slug:, condition_slug:)` | Get evidence for ingredient-condition pair | `EvidenceLink` |
+| `get_evidence_by_id(id)` | Get evidence link by numeric ID | `EvidenceLink` |
+| `search_papers(query:, year:)` | Search PubMed papers | `Array<Paper>` |
+| `get_paper(pmid)` | Get paper by PubMed ID | `Paper` |
+
+### Types
 
 | Class | Fields |
 |-------|--------|
 | `Ingredient` | `id`, `name`, `slug`, `category`, `mechanism`, `recommended_dosage`, `forms`, `is_featured` |
-| `Condition` | `slug`, `name` |
-| `Paper` | `id`, `pmid`, `title`, `journal`, `publication_year`, `study_type`, `citation_count`, `is_open_access`, `pubmed_link` |
 | `EvidenceLink` | `id`, `ingredient`, `condition`, `grade`, `grade_label`, `summary`, `direction`, `total_studies`, `total_participants` |
-| `NestedIngredient` | `slug`, `name` |
+| `Paper` | `id`, `pmid`, `title`, `journal`, `publication_year`, `study_type`, `citation_count`, `is_open_access`, `pubmed_link` |
 
-## Learn More
+### Constructor Options
 
-- **Cited Health**: [citedhealth.com](https://citedhealth.com) -- Evidence-based supplement research
-- **API Documentation**: [citedhealth.com/developers/](https://citedhealth.com/developers/)
-- **Hair Health**: [haircited.com](https://haircited.com) -- Supplements for hair loss and growth
-- **Sleep Health**: [sleepcited.com](https://sleepcited.com) -- Supplements for sleep quality
-- **Source Code**: [github.com/citedhealth/citedhealth-rb](https://github.com/citedhealth/citedhealth-rb)
+```ruby
+# Default client
+client = CitedHealth::Client.new
+
+# Custom base URL and timeout
+client = CitedHealth::Client.new(
+  base_url: "https://citedhealth.com",
+  timeout: 30
+)
+```
+
+Full API documentation: [citedhealth.com/developers/](https://citedhealth.com/developers/)
+OpenAPI 3.1.0 spec: [citedhealth.com/api/openapi.json](https://citedhealth.com/api/openapi.json)
+
+## Learn More About Evidence-Based Supplements
+
+- **Tools**: [Evidence Checker](https://citedhealth.com/evidence/) · [Ingredient Browser](https://citedhealth.com/) · [Paper Search](https://citedhealth.com/papers/)
+- **Browse**: [Hair Health](https://haircited.com) · [Sleep Health](https://sleepcited.com) · [All Ingredients](https://citedhealth.com/api/ingredients/)
+- **Guides**: [Grading Methodology](https://citedhealth.com/editorial-policy/) · [Medical Disclaimer](https://citedhealth.com/medical-disclaimer/)
+- **API**: [REST API Docs](https://citedhealth.com/developers/) · [OpenAPI Spec](https://citedhealth.com/api/openapi.json)
+- **Python**: [citedhealth on PyPI](https://pypi.org/project/citedhealth/)
+- **TypeScript**: [citedhealth on npm](https://www.npmjs.com/package/citedhealth)
+- **Go**: [citedhealth-go on pkg.go.dev](https://pkg.go.dev/github.com/citedhealth/citedhealth-go)
+- **Rust**: [citedhealth on crates.io](https://crates.io/crates/citedhealth)
+
+## Also Available
+
+| Platform | Install | Link |
+|----------|---------|------|
+| **PyPI** | `pip install citedhealth` | [PyPI](https://pypi.org/project/citedhealth/) |
+| **npm** | `npm install citedhealth` | [npm](https://www.npmjs.com/package/citedhealth) |
+| **Go** | `go get github.com/citedhealth/citedhealth-go` | [pkg.go.dev](https://pkg.go.dev/github.com/citedhealth/citedhealth-go) |
+| **Rust** | `cargo add citedhealth` | [crates.io](https://crates.io/crates/citedhealth) |
+| **MCP** | `uvx citedhealth-mcp` | [PyPI](https://pypi.org/project/citedhealth-mcp/) |
 
 ## License
 
-MIT -- see [LICENSE](LICENSE) for details.
+MIT — see [LICENSE](LICENSE) for details.
