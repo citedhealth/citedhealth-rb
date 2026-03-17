@@ -11,7 +11,7 @@ Type "ruby -Ilib exe/citedhealth ingredients biotin"
 Enter
 Sleep 3s
 
-Type "ruby -Ilib exe/citedhealth evidence biotin hair-loss"
+Type "ruby -Ilib exe/citedhealth evidence biotin nutritional-deficiency-hair-loss"
 Enter
 Sleep 3s
 
