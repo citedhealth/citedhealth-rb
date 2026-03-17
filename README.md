@@ -9,7 +9,7 @@ Ruby client for the [Cited Health](https://citedhealth.com) API. Search evidence
 
 Cited Health is an evidence-based supplement research platform providing curated data on 74 ingredients, 30 health conditions, 2,881 PubMed papers, and 152 graded evidence links connecting supplements to outcomes.
 
-> **Explore the research at [citedhealth.com](https://citedhealth.com)** -- [Ingredients](https://citedhealth.com/ingredients/), [Evidence](https://citedhealth.com/evidence/), [Research Papers](https://citedhealth.com/papers/)
+> **Explore the research at [citedhealth.com](https://citedhealth.com)** -- [Ingredients](https://citedhealth.com/ingredients/), [Evidence](https://citedhealth.com/api/evidence/), [Research Papers](https://citedhealth.com/papers/)
 
 ## Table of Contents
 
@@ -97,7 +97,7 @@ puts magnesium.recommended_dosage  # {"general" => "200-400mg"}
 puts magnesium.forms               # ["Glycinate", "Citrate", ...]
 ```
 
-Learn more: [Browse Ingredients](https://citedhealth.com/) · [Evidence Database](https://citedhealth.com/evidence/) · [Developer Docs](https://citedhealth.com/developers/)
+Learn more: [Browse Ingredients](https://citedhealth.com/) · [Evidence Database](https://citedhealth.com/api/evidence/) · [Developer Docs](https://citedhealth.com/developers/)
 
 ### Check Evidence Grades
 
@@ -123,7 +123,7 @@ ev = client.get_evidence_by_id(42)
 puts "#{ev.ingredient.name} for #{ev.condition.name}"
 ```
 
-Learn more: [Evidence Reviews](https://citedhealth.com/evidence/) · [Grading Methodology](https://citedhealth.com/editorial-policy/) · [Hair Health](https://haircited.com) · [Sleep Health](https://sleepcited.com)
+Learn more: [Evidence Reviews](https://citedhealth.com/api/evidence/) · [Grading Methodology](https://citedhealth.com/editorial-policy/) · [Hair Health](https://haircited.com) · [Sleep Health](https://sleepcited.com)
 
 ### Search PubMed Papers
 
@@ -224,7 +224,7 @@ OpenAPI 3.1.0 spec: [citedhealth.com/api/openapi.json](https://citedhealth.com/a
 
 ## Learn More About Evidence-Based Supplements
 
-- **Tools**: [Evidence Checker](https://citedhealth.com/evidence/) · [Ingredient Browser](https://citedhealth.com/) · [Paper Search](https://citedhealth.com/papers/)
+- **Tools**: [Evidence Checker](https://citedhealth.com/api/evidence/) · [Ingredient Browser](https://citedhealth.com/) · [Paper Search](https://citedhealth.com/papers/)
 - **Browse**: [Hair Health](https://haircited.com) · [Sleep Health](https://sleepcited.com) · [All Ingredients](https://citedhealth.com/api/ingredients/)
 - **Guides**: [Grading Methodology](https://citedhealth.com/editorial-policy/) · [Medical Disclaimer](https://citedhealth.com/medical-disclaimer/)
 - **API**: [REST API Docs](https://citedhealth.com/developers/) · [OpenAPI Spec](https://citedhealth.com/api/openapi.json)
