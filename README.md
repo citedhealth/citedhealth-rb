@@ -4,6 +4,7 @@
 [![Ruby](https://img.shields.io/badge/Ruby-%3E%3D%203.0-red)](https://www.ruby-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](https://rubygems.org/gems/citedhealth)
+[![GitHub stars](https://agentgif.com/badge/github/citedhealth/citedhealth-rb/stars.svg)](https://github.com/citedhealth/citedhealth-rb)
 
 Ruby client for the [Cited Health](https://citedhealth.com) API. Search evidence-based health supplement ingredients, research papers, and evidence links grading ingredient-condition relationships. Zero runtime dependencies -- uses only Ruby stdlib (`net/http`, `json`, `uri`).
 
@@ -12,7 +13,7 @@ Cited Health is an evidence-based supplement research platform providing curated
 > **Explore the research at [citedhealth.com](https://citedhealth.com)** -- [Ingredients](https://citedhealth.com/ingredients/), [Evidence](https://citedhealth.com/api/evidence/), [Research Papers](https://citedhealth.com/papers/)
 
 <p align="center">
-  <img src="demo.gif" alt="citedhealth Ruby CLI demo — search ingredients, evidence grades, and PubMed papers" width="800">
+  <a href="https://agentgif.com/YdiLe4Ln"><img src="https://media.agentgif.com/YdiLe4Ln.gif" alt="citedhealth Ruby CLI demo — search ingredients, evidence grades, and PubMed papers" width="800"></a>
 </p>
 
 ## Table of Contents
