@@ -6,11 +6,11 @@
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)](https://rubygems.org/gems/citedhealth)
 [![GitHub stars](https://agentgif.com/badge/github/citedhealth/citedhealth-rb/stars.svg)](https://github.com/citedhealth/citedhealth-rb)
 
-Ruby client for the [Cited Health](https://citedhealth.com) API. Search evidence-based health supplement ingredients, research papers, and evidence links grading ingredient-condition relationships. Zero runtime dependencies -- uses only Ruby stdlib (`net/http`, `json`, `uri`).
+Ruby client for the [Cited Health](https://citedhealth.com) API. Search evidence-based health supplement ingredients, conditions, research papers, evidence links, glossary terms, and guides. Zero runtime dependencies -- uses only Ruby stdlib (`net/http`, `json`, `uri`).
 
-Cited Health is an evidence-based supplement research platform providing curated data on 74 ingredients, 30 health conditions, 2,881 PubMed papers, and 152 graded evidence links connecting supplements to outcomes.
+Cited Health is an evidence-based supplement research platform across 6 sites providing curated data on 188 ingredients, 84 health conditions, 6,197 PubMed papers, and graded evidence links connecting supplements to outcomes.
 
-> **Explore the research at [citedhealth.com](https://citedhealth.com)** -- [Ingredients](https://citedhealth.com/ingredients/), [Evidence](https://citedhealth.com/api/evidence/), [Research Papers](https://citedhealth.com/papers/)
+> **Explore the research at [citedhealth.com](https://citedhealth.com)** -- [Ingredients](https://citedhealth.com/ingredients/), [Evidence](https://citedhealth.com/api/evidence/), [Research Papers](https://citedhealth.com/papers/) · [Hair](https://haircited.com) · [Sleep](https://sleepcited.com) · [Gut](https://gutcited.com) · [Immune](https://immunecited.com) · [Brain](https://braincited.com)
 
 <p align="center">
   <a href="https://agentgif.com/YdiLe4Ln"><img src="https://media.agentgif.com/YdiLe4Ln.gif" alt="citedhealth Ruby CLI demo — search ingredients, evidence grades, and PubMed papers" width="800"></a>
@@ -25,6 +25,9 @@ Cited Health is an evidence-based supplement research platform providing curated
   - [Search Supplement Ingredients](#search-supplement-ingredients)
   - [Check Evidence Grades](#check-evidence-grades)
   - [Search PubMed Papers](#search-pubmed-papers)
+  - [Browse Health Conditions](#browse-health-conditions)
+  - [Look Up Glossary Terms](#look-up-glossary-terms)
+  - [Read Health Guides](#read-health-guides)
 - [Error Handling](#error-handling)
 - [Evidence Grades](#evidence-grades)
 - [API Reference](#api-reference)
@@ -115,6 +118,45 @@ citedhealth papers melatonin --year 2024
 citedhealth paper 12345678
 ```
 
+### List conditions
+
+```bash
+citedhealth conditions
+citedhealth conditions --featured
+```
+
+### Get condition details
+
+```bash
+citedhealth condition hair-loss
+```
+
+### Browse glossary
+
+```bash
+citedhealth glossary
+citedhealth glossary -c supplements
+```
+
+### Get glossary term
+
+```bash
+citedhealth glossary-term bioavailability
+```
+
+### List guides
+
+```bash
+citedhealth guides
+citedhealth guides -c hair
+```
+
+### Get guide details
+
+```bash
+citedhealth guide vitamin-d-hair-loss
+```
+
 ### Output formats
 
 By default, output is pretty-printed JSON. Use `--json` for compact JSON (useful for piping):
@@ -180,7 +222,7 @@ Learn more: [Evidence Reviews](https://citedhealth.com/api/evidence/) · [Gradin
 
 ### Search PubMed Papers
 
-All 2,881 papers are indexed from PubMed and enriched with citation data from Semantic Scholar. Filter by keyword or publication year.
+All 6,197 papers are indexed from PubMed and enriched with citation data from Semantic Scholar. Filter by keyword or publication year.
 
 ```ruby
 client = CitedHealth::Client.new
@@ -203,6 +245,78 @@ puts paper.study_type  # "RCT", "Meta-Analysis", etc.
 ```
 
 Learn more: [Browse Papers](https://citedhealth.com/papers/) · [OpenAPI Spec](https://citedhealth.com/api/openapi.json) · [REST API Docs](https://citedhealth.com/developers/)
+
+### Browse Health Conditions
+
+Access 84 health conditions with descriptions, prevalence data, symptoms, and risk factors. Filter by featured status to find the most commonly researched conditions.
+
+```ruby
+client = CitedHealth::Client.new
+
+# List all conditions
+conditions = client.list_conditions
+conditions.each { |c| puts "#{c.name}: #{c.description[0..80]}..." }
+
+# Filter to featured conditions only
+featured = client.list_conditions(is_featured: true)
+
+# Get detailed condition information
+hair_loss = client.get_condition("hair-loss")
+puts hair_loss.name            # "Hair Loss"
+puts hair_loss.prevalence      # Prevalence information
+puts hair_loss.symptoms        # ["Thinning hair", ...]
+puts hair_loss.risk_factors    # ["Genetics", "Stress", ...]
+```
+
+Learn more: [Health Conditions](https://citedhealth.com/conditions/) · [Hair Health](https://haircited.com) · [Sleep Health](https://sleepcited.com)
+
+### Look Up Glossary Terms
+
+Browse health and supplement terminology with 228 glossary terms covering abbreviations, definitions, and categorized entries.
+
+```ruby
+client = CitedHealth::Client.new
+
+# List all glossary terms
+terms = client.list_glossary
+terms.each { |t| puts "#{t.term}: #{t.short_definition}" }
+
+# Filter by category
+supplement_terms = client.list_glossary(category: "supplements")
+
+# Get a specific glossary term with full definition
+term = client.get_glossary_term("bioavailability")
+puts term.term              # "Bioavailability"
+puts term.abbreviation      # Abbreviation if applicable
+puts term.definition        # Full definition text
+puts term.category          # Term category
+```
+
+Learn more: [Glossary](https://citedhealth.com/glossary/) · [Editorial Policy](https://citedhealth.com/editorial-policy/)
+
+### Read Health Guides
+
+Access curated guides on health topics and supplement usage, organized by category.
+
+```ruby
+client = CitedHealth::Client.new
+
+# List all guides
+guides = client.list_guides
+guides.each { |g| puts "#{g.title} [#{g.category}]" }
+
+# Filter by category
+hair_guides = client.list_guides(category: "hair")
+
+# Get a specific guide with full content
+guide = client.get_guide("vitamin-d-hair-loss")
+puts guide.title            # Guide title
+puts guide.content          # Full guide content (Markdown)
+puts guide.category         # Guide category
+puts guide.meta_description # SEO description
+```
+
+Learn more: [Health Guides](https://citedhealth.com/guides/) · [Developer Docs](https://citedhealth.com/developers/)
 
 ## Error Handling
 
@@ -250,14 +364,23 @@ All API responses are returned as typed Ruby objects with `attr_reader` accessor
 | `get_evidence_by_id(id)` | Get evidence link by numeric ID | `EvidenceLink` |
 | `search_papers(query:, year:)` | Search PubMed papers | `Array<Paper>` |
 | `get_paper(pmid)` | Get paper by PubMed ID | `Paper` |
+| `list_conditions(is_featured:)` | List health conditions | `Array<Condition>` |
+| `get_condition(slug)` | Get condition by slug | `Condition` |
+| `list_glossary(category:)` | List glossary terms | `Array<GlossaryTerm>` |
+| `get_glossary_term(slug)` | Get glossary term by slug | `GlossaryTerm` |
+| `list_guides(category:)` | List health guides | `Array<Guide>` |
+| `get_guide(slug)` | Get guide by slug | `Guide` |
 
 ### Types
 
 | Class | Fields |
 |-------|--------|
 | `Ingredient` | `id`, `name`, `slug`, `category`, `mechanism`, `recommended_dosage`, `forms`, `is_featured` |
+| `Condition` | `slug`, `name`, `description`, `meta_description`, `prevalence`, `symptoms`, `risk_factors`, `is_featured` |
 | `EvidenceLink` | `id`, `ingredient`, `condition`, `grade`, `grade_label`, `summary`, `direction`, `total_studies`, `total_participants` |
 | `Paper` | `id`, `pmid`, `title`, `journal`, `publication_year`, `study_type`, `citation_count`, `is_open_access`, `pubmed_link` |
+| `GlossaryTerm` | `slug`, `term`, `short_definition`, `definition`, `abbreviation`, `category` |
+| `Guide` | `slug`, `title`, `content`, `category`, `meta_description` |
 
 ### Constructor Options
 
@@ -278,7 +401,8 @@ OpenAPI 3.1.0 spec: [citedhealth.com/api/openapi.json](https://citedhealth.com/a
 ## Learn More About Evidence-Based Supplements
 
 - **Tools**: [Evidence Checker](https://citedhealth.com/api/evidence/) · [Ingredient Browser](https://citedhealth.com/) · [Paper Search](https://citedhealth.com/papers/)
-- **Browse**: [Hair Health](https://haircited.com) · [Sleep Health](https://sleepcited.com) · [All Ingredients](https://citedhealth.com/api/ingredients/)
+- **Browse**: [Hair Health](https://haircited.com) · [Sleep Health](https://sleepcited.com) · [Gut Health](https://gutcited.com) · [Immune Health](https://immunecited.com) · [Brain Health](https://braincited.com)
+- **Reference**: [Health Conditions](https://citedhealth.com/conditions/) · [Glossary](https://citedhealth.com/glossary/) · [Health Guides](https://citedhealth.com/guides/)
 - **Guides**: [Grading Methodology](https://citedhealth.com/editorial-policy/) · [Medical Disclaimer](https://citedhealth.com/medical-disclaimer/)
 - **API**: [REST API Docs](https://citedhealth.com/developers/) · [OpenAPI Spec](https://citedhealth.com/api/openapi.json)
 - **Python**: [citedhealth on PyPI](https://pypi.org/project/citedhealth/)

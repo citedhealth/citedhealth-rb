@@ -97,6 +97,75 @@ module CitedHealth
       Paper.from_hash(data)
     end
 
+    # List health conditions, optionally filtered by featured status.
+    #
+    # @param is_featured [Boolean, nil] filter by featured status
+    # @return [Array<Condition>] list of conditions
+    def list_conditions(is_featured: nil)
+      params = {}
+      params[:is_featured] = is_featured.to_s unless is_featured.nil?
+
+      data = get("/api/conditions/", params)
+      results = data["results"] || []
+      results.map { |h| Condition.from_hash(h) }
+    end
+
+    # Get a single condition by slug.
+    #
+    # @param slug [String] condition slug (e.g. "hair-loss")
+    # @return [Condition]
+    # @raise [NotFoundError] if the condition does not exist
+    def get_condition(slug)
+      data = get("/api/conditions/#{slug}/")
+      Condition.from_hash(data)
+    end
+
+    # List glossary terms, optionally filtered by category.
+    #
+    # @param category [String, nil] filter by category
+    # @return [Array<GlossaryTerm>] list of glossary terms
+    def list_glossary(category: nil)
+      params = {}
+      params[:category] = category unless category.nil?
+
+      data = get("/api/glossary/", params)
+      results = data["results"] || []
+      results.map { |h| GlossaryTerm.from_hash(h) }
+    end
+
+    # Get a single glossary term by slug.
+    #
+    # @param slug [String] glossary term slug
+    # @return [GlossaryTerm]
+    # @raise [NotFoundError] if the glossary term does not exist
+    def get_glossary_term(slug)
+      data = get("/api/glossary/#{slug}/")
+      GlossaryTerm.from_hash(data)
+    end
+
+    # List guides, optionally filtered by category.
+    #
+    # @param category [String, nil] filter by category
+    # @return [Array<Guide>] list of guides
+    def list_guides(category: nil)
+      params = {}
+      params[:category] = category unless category.nil?
+
+      data = get("/api/guides/", params)
+      results = data["results"] || []
+      results.map { |h| Guide.from_hash(h) }
+    end
+
+    # Get a single guide by slug.
+    #
+    # @param slug [String] guide slug
+    # @return [Guide]
+    # @raise [NotFoundError] if the guide does not exist
+    def get_guide(slug)
+      data = get("/api/guides/#{slug}/")
+      Guide.from_hash(data)
+    end
+
     private
 
     def get(path, params = {})

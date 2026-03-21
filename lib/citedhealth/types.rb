@@ -32,19 +32,83 @@ module CitedHealth
     end
   end
 
-  # A health condition referenced in evidence links.
+  # A health condition referenced in evidence links and the conditions API.
   class Condition
-    attr_reader :slug, :name
+    attr_reader :slug, :name, :description, :meta_description,
+                :prevalence, :symptoms, :risk_factors, :is_featured
 
-    def initialize(slug:, name:)
+    def initialize(slug:, name:, description: "", meta_description: "",
+                   prevalence: "", symptoms: [], risk_factors: [], is_featured: false)
       @slug = slug
       @name = name
+      @description = description
+      @meta_description = meta_description
+      @prevalence = prevalence
+      @symptoms = symptoms
+      @risk_factors = risk_factors
+      @is_featured = is_featured
     end
 
     def self.from_hash(hash)
       new(
         slug: hash["slug"],
-        name: hash["name"]
+        name: hash["name"],
+        description: hash["description"] || "",
+        meta_description: hash["meta_description"] || "",
+        prevalence: hash["prevalence"] || "",
+        symptoms: hash["symptoms"] || [],
+        risk_factors: hash["risk_factors"] || [],
+        is_featured: hash["is_featured"] || false
+      )
+    end
+  end
+
+  # A glossary term explaining health and supplement terminology.
+  class GlossaryTerm
+    attr_reader :slug, :term, :short_definition, :definition,
+                :abbreviation, :category
+
+    def initialize(slug:, term:, short_definition: "", definition: "",
+                   abbreviation: "", category: "")
+      @slug = slug
+      @term = term
+      @short_definition = short_definition
+      @definition = definition
+      @abbreviation = abbreviation
+      @category = category
+    end
+
+    def self.from_hash(hash)
+      new(
+        slug: hash["slug"],
+        term: hash["term"],
+        short_definition: hash["short_definition"] || "",
+        definition: hash["definition"] || "",
+        abbreviation: hash["abbreviation"] || "",
+        category: hash["category"] || ""
+      )
+    end
+  end
+
+  # A curated guide on health topics and supplement usage.
+  class Guide
+    attr_reader :slug, :title, :content, :category, :meta_description
+
+    def initialize(slug:, title:, content: "", category: "", meta_description: "")
+      @slug = slug
+      @title = title
+      @content = content
+      @category = category
+      @meta_description = meta_description
+    end
+
+    def self.from_hash(hash)
+      new(
+        slug: hash["slug"],
+        title: hash["title"],
+        content: hash["content"] || "",
+        category: hash["category"] || "",
+        meta_description: hash["meta_description"] || ""
       )
     end
   end

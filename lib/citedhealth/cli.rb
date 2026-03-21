@@ -25,6 +25,12 @@ module CitedHealth
         evidence INGREDIENT CONDITION       Get evidence for a pair
         papers [QUERY] [-y YEAR]            Search research papers
         paper PMID                          Get paper by PubMed ID
+        conditions [--featured]             List health conditions
+        condition SLUG                      Get condition details
+        glossary [-c CATEGORY]              List glossary terms
+        glossary-term SLUG                  Get glossary term details
+        guides [-c CATEGORY]               List guides
+        guide SLUG                          Get guide details
 
       Options:
         --json       Compact JSON output
@@ -51,11 +57,17 @@ module CitedHealth
         client = CitedHealth::Client.new
 
         result = case command
-                 when "ingredients" then cmd_ingredients(client, args)
-                 when "ingredient"  then cmd_ingredient(client, args)
-                 when "evidence"    then cmd_evidence(client, args)
-                 when "papers"      then cmd_papers(client, args)
-                 when "paper"       then cmd_paper(client, args)
+                 when "ingredients"   then cmd_ingredients(client, args)
+                 when "ingredient"    then cmd_ingredient(client, args)
+                 when "evidence"      then cmd_evidence(client, args)
+                 when "papers"        then cmd_papers(client, args)
+                 when "paper"         then cmd_paper(client, args)
+                 when "conditions"    then cmd_conditions(client, args)
+                 when "condition"     then cmd_condition(client, args)
+                 when "glossary"      then cmd_glossary(client, args)
+                 when "glossary-term" then cmd_glossary_term(client, args)
+                 when "guides"        then cmd_guides(client, args)
+                 when "guide"         then cmd_guide(client, args)
                  else
                    warn "Unknown command: #{command}"
                    warn USAGE
@@ -133,6 +145,52 @@ module CitedHealth
         to_hash(client.get_paper(pmid))
       end
 
+      def cmd_conditions(client, args)
+        featured = extract_flag!(args, "--featured")
+        is_featured = featured ? true : nil
+        results = client.list_conditions(is_featured: is_featured)
+        results.map { |c| to_hash(c) }
+      end
+
+      def cmd_condition(client, args)
+        slug = args.shift
+        if slug.nil? || slug.empty?
+          warn "Usage: citedhealth condition SLUG"
+          exit 1
+        end
+        to_hash(client.get_condition(slug))
+      end
+
+      def cmd_glossary(client, args)
+        category = extract_option!(args, "-c")
+        results = client.list_glossary(category: category)
+        results.map { |t| to_hash(t) }
+      end
+
+      def cmd_glossary_term(client, args)
+        slug = args.shift
+        if slug.nil? || slug.empty?
+          warn "Usage: citedhealth glossary-term SLUG"
+          exit 1
+        end
+        to_hash(client.get_glossary_term(slug))
+      end
+
+      def cmd_guides(client, args)
+        category = extract_option!(args, "-c")
+        results = client.list_guides(category: category)
+        results.map { |g| to_hash(g) }
+      end
+
+      def cmd_guide(client, args)
+        slug = args.shift
+        if slug.nil? || slug.empty?
+          warn "Usage: citedhealth guide SLUG"
+          exit 1
+        end
+        to_hash(client.get_guide(slug))
+      end
+
       def extract_option!(args, flag)
         idx = args.index(flag)
         return nil unless idx
@@ -147,7 +205,8 @@ module CitedHealth
           key = var.to_s.delete_prefix("@")
           value = obj.instance_variable_get(var)
           hash[key] = case value
-                      when CitedHealth::NestedIngredient, CitedHealth::Condition
+                      when CitedHealth::NestedIngredient, CitedHealth::Condition,
+                           CitedHealth::GlossaryTerm, CitedHealth::Guide
                         to_hash(value)
                       else
                         value
